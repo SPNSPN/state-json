@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"></meta>
+	<script src="transition.js"></script>
+	<script src="panel_state.js"></script>
+	<title>panel</title>
+</head>
+<body>
+	<script>
+	function switch_selector ()
+	{
+		let selector = document.querySelector(".panel-selector");
+		let status = selector.getAttribute("status");
+		let select_mode = `select_${status}`;
+		if ("manual" == status)
+		{
+			if (machine.transit("select_auto"))
+			{
+				selector.setAttribute("status", "auto");
+			}
+		}
+		else if ("auto" == status)
+		{
+			if (machine.transit("select_manu"))
+			{
+				selector.setAttribute("status", "manual");
+			}
+		}
+		else
+		{
+			throw `unknown selector state: ${status}`;
+		}
+	}
+	</script>
+	<button onclick='machine.transit("click_estop")'>STOP</button>
+	<button onclick='machine.transit("click_reset")'>RESET</button>
+	<button class='panel-selector' onclick='switch_selector()' status='manual'>SELECTOR</button>
+	<button onclick='machine.transit("click_autorun")'>AUTORUN</button>
+</body>

@@ -1,0 +1,7 @@
+[em='true'] {
+	text-shadow: #aa1111 5px 0 10px;
+}
+
+[em='false'] {
+	text-shadow: #ffffff 0px 0 0px;
+}

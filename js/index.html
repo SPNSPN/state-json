@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="UTF-8"></meta>
+	<meta http-equiv="Pragma" content-"no-cache"></meta>
+	<meta http-equiv="Cache-Control" content="no-cache"></meta>
+	<script src="transition.js"></script>
+	<link rel="stylesheet" href="state.css"></link>
+	<title>load_json</title>
+</head>
+<body>
+	<script>
+	function allow_always () { return true; }
+
+	function insert_state_label (labels, name)
+	{
+		let hr = document.createElement("hr");
+		labels.insertBefore(hr, labels.firstChild);
+
+		let buttons_area = document.createElement("div");
+		buttons_area.setAttribute("class", "buttons-area");
+		buttons_area.setAttribute("id", `state-${name}`);
+		labels.insertBefore(buttons_area, labels.firstChild);
+
+		let state_label = document.createElement("div");
+		state_label.setAttribute("class", "state-label");
+		state_label.setAttribute("id", `state-${name}`);
+		state_label.setAttribute("em", "false");
+		state_label.textContent = name;
+		labels.insertBefore(state_label, labels.firstChild);
+	}
+
+	function insert_condition_button (state_name, condition_name)
+	{
+		let buttons_area = document.querySelector(`.buttons-area#state-${state_name}`);
+		let condition_button = document.createElement("button");
+		condition_button.setAttribute("class", "condition-button");
+		condition_button.setAttribute("id", `condition-${condition_name}`);
+		condition_button.setAttribute("onclick", `try_transit("${condition_name}")`);
+		condition_button.textContent = condition_name;
+		buttons_area.insertBefore(condition_button, buttons_area.firstChild);
+	}
+
+	function construct_state_machine (machine)
+	{
+		let state_labels = document.querySelector("#state-labels");
+		while (state_labels.firstChild) { state_labels.removeChild(state_labels.firstChild); } // delete all children
+
+		machine.states.map((st) =>
+				{
+					insert_state_label(state_labels, st.name);
+					st.conditions.map((cond) =>
+							{
+								insert_condition_button(st.name, cond.name);
+							});
+				});
+	}
+
+	let machine = null;
+	function click_load_json ()
+	{
+		let form = document.querySelector("#json-path-form");
+		let path = form.value;
+
+		let request = new XMLHttpRequest();
+		request.open("GET", path);
+		request.send();
+
+		console.log(`Loading: ${path}`);
+
+		machine = new Transition("");
+		request.onreadystatechange = function ()
+		{
+			if (4 == request.readyState && 200 == request.status)
+			{
+				console.log("Complete Loading.");
+
+				machine.from_json(request.responseText);
+				machine.fill_check_fn(allow_always);
+
+				construct_state_machine(machine);
+				emphasize_state(machine.initial, true);
+			}
+		};
+	}
+
+	function emphasize_state (state_name, flag)
+	{
+		let state_element = document.querySelector(`#state-${state_name}`);
+		state_element.setAttribute("em", flag ? "true" : "false");
+	}
+
+	function try_transit (condition_name)
+	{
+		let prev_state = machine.current;
+		let registered = true;
+		let accept = false;
+		try
+		{
+			accept = machine.transit(condition_name);
+		}
+		catch (e)
+		{
+			console.log(`throw: ${e.message} condition: ${condition_name}`);
+			registered = false;
+		}
+
+		let message = "";
+		if (registered && accept)
+		{
+			message = `transit to ${machine.current}`;
+
+			emphasize_state(prev_state, false);
+			emphasize_state(machine.current, true);
+		}
+		else
+		{
+			message = "fail transit";
+		}
+
+		let message_element = document.querySelector("#message");
+		message_element.textContent = message;
+	}
+	</script>
+	<div id="input-settings">
+		<input id="json-path-form" type="text"></input>
+		<button id="load-json-button" onclick="click_load_json()">load</button>
+	</div>
+	<hr></hr>
+	<hr></hr>
+	<div id="state-viewer">
+		<div id="state-labels"></div>
+		<hr></hr>
+		<hr></hr>
+		<div id="message"></div>
+	</div>
+</body>

@@ -1,0 +1,67 @@
+
+digraph transition {
+graph [
+	charset = "UTF-8"
+	, label = "transition graph"
+	, labelloc = "t"
+	, labeljust = "c"
+	, bgcolor = "#ffffff"
+	, fontcolor = black
+	, fontsize = 18
+	, style = "filled"
+	, rankdir = TB
+	, margin = 0.2
+	, splines = spline
+	, ranksep = 1.0
+	, nodesep = 0.9
+];
+node [
+	colorscheme = "rdylgn11"
+	, style = "solid"
+	, fontsize = 16
+	, fontcolor = black
+	, fontname = "Migu 1M"
+	, color = black
+	, fillcolor = 7
+	, fixedsize = true
+	, height = 0.6
+	, width = 1.2
+];
+edge [
+	style = solid
+	, fontsize = 10
+	, fontcolor = black
+	, fontname = "Migu 1M"
+	, color = black
+	, labelfloat = true
+	, labeldistance = 2.5
+	, labelangle = 70
+];
+s [shape = circle, width = 0.1];
+manual [shape = box];
+prerun [shape = box];
+autorun [shape = box];
+stop [shape = box];
+
+s -> manual [label = "
+(初期状態)", arrowhead = normal];
+manual -> prerun [label = "select_auto
+(常に成功)", arrowhead = normal];
+manual -> autorun [label = "click_autorun
+(常に失敗)", arrowhead = normal];
+manual -> stop [label = "click_estop
+(常に成功)", arrowhead = normal];
+prerun -> manual [label = "select_manu
+(常に成功)", arrowhead = normal];
+prerun -> autorun [label = "click_auto
+(常に成功)", arrowhead = normal];
+prerun -> stop [label = "click_estop
+(常に成功)", arrowhead = normal];
+autorun -> manual [label = "select_manu
+(常に成功)", arrowhead = normal];
+autorun -> stop [label = "click_estop
+(常に成功)", arrowhead = normal];
+stop -> manual [label = "click_reset
+(常に成功)", arrowhead = normal];
+
+}
